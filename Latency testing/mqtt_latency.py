@@ -32,10 +32,10 @@ class TimeCalculator:
         return self.timeDeltas[i]
     
     def getReceivedMessages(self):
-        return len(self.timeDeltasList)
+        return len(self.timeDeltas)
     
     def calcAvg (self):
-        return sum(self.timeDeltasList) / len(self.timeDeltasList)
+        return sum(self.timeDeltasList) / len(self.timeDeltas)
     
     def calcMax (self):
         return max(self.timeDeltasList)
@@ -54,12 +54,13 @@ timeCalc = TimeCalculator()
 
 # Custom MQTT message callback
 def customCallback(client, userdata, message):
-    timeCalc.finishT(message.payload)
+    msg = message.payload.decode("utf-8")
+    timeCalc.finishT(msg)
     
-    print(f"Received a new message: {message.payload}. from topic: {message.topic}. Time taken: {timeCalc.getTimeDelta(message.payload)}")
+    print(f"Received a new message: {message.payload}. from topic: {message.topic}. Time taken: {timeCalc.getTimeDelta(msg)}")
 
 
-cwd = os.getcwd()
+cwd = os.path.dirname(__file__)
 
 qos = 0
 host = "a3ccusvtjpdwda-ats.iot.eu-west-2.amazonaws.com"
@@ -102,14 +103,15 @@ time.sleep(1)
 
 
 # publish to topic
-messages = range(10)
+messages = [f"Hello world {x}" for x in range(10)]
+# messages = range(1,10)
 for m in messages:
-    msg = str(m)
+    msg = f"{m}"
 
     timeCalc.startT(msg)
     myAWSIoTMQTTClient.publish(topic, msg, qos)
 
-    time.sleep(1)
+    time.sleep(0.1)
 
 #to ensure all messages are received
 time.sleep(1)
