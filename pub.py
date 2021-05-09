@@ -84,7 +84,7 @@ def on_resubscribe_complete(resubscribe_future):
 def on_message_received(topic, payload, dup, qos, retain, **kwargs):
     ntp_t = c.request('uk.pool.ntp.org', version=3)
     ntp_t.offset
-    ntp_delay = ntp_t.tx_time - float(payload) - 
+    ntp_delay = ntp_t.tx_time - float(payload)
     t1 = time.time()
     delay = t1-t0
     global counter
