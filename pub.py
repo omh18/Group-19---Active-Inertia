@@ -51,7 +51,7 @@ received_all_event = threading.Event()
 
 t0 = t1 = counter = total = 0
 
-#c = ntplib.NTPClient()
+c = ntplib.NTPClient()
 
 # Callback when connection is accidentally lost.
 def on_connection_interrupted(connection, error, **kwargs):
@@ -167,14 +167,14 @@ if __name__ == '__main__':
 
         publish_count = 1
         while (publish_count <= args.count) or (args.count == 0):
-            message = "{} [{}]".format(args.message, publish_count)
-            #ntp_t = c.request('uk.pool.ntp.org', version=3)
-            #ntp_t.offset
-            #message = ntp_t.tx_time
+            #message = "{} [{}]".format(args.message, publish_count)
+            ntp_t = c.request('uk.pool.ntp.org', version=3)
+            ntp_t.offset
+            message = ntp_t.tx_time
             print("Publishing message to topic '{}': {}".format(args.topic, message))
             mqtt_connection.publish(
                 topic=args.topic,
-                payload=message,
+                payload=str(message),
                 qos=mqtt.QoS.AT_LEAST_ONCE)
             t0 = time.time()
             time.sleep(1)
