@@ -10,6 +10,8 @@ import threading
 import time
 from uuid import uuid4
 
+import collections
+
 # This sample uses the Message Broker for AWS IoT to send and receive messages
 # through an MQTT connection. On startup, the device connects to the server,
 # subscribes to a topic, and begins publishing messages to that topic.
@@ -30,6 +32,10 @@ parser.add_argument('--message', default="Hello World!", help="Message to publis
                                                               "Specify empty string to publish nothing.")
 parser.add_argument('--count', default=10, type=int, help="Number of messages to publish/receive before exiting. " +
                                                           "Specify 0 to run forever.")
+parser.add_argument('--interval', default=1000, type=int, help="Set interval at which each message is sent." +
+                                                          "Default is 1s.")
+parser.add_argument('--qos', default=0, type=int, help="Set QoS of messages" +
+                                                          "Default is 0")
 parser.add_argument('--use-websocket', default=False, action='store_true',
     help="To use a websocket instead of raw mqtt. If you " +
     "specify this option you must specify a region for signing, you can also enable proxy mode.")
@@ -49,9 +55,15 @@ io.init_logging(getattr(io.LogLevel, args.verbosity), 'stderr')
 received_count = 0
 received_all_event = threading.Event()
 
-t0 = t1 = counter = total = 0
+t1 = counter = total = 0
 
-c = ntplib.NTPClient()
+t0 = collections.deque()
+
+DelayList = []
+
+QoS = mqtt.QoS.AT_LEAST_ONCE if int(args.qos) else mqtt.QoS.AT_MOST_ONCE
+
+#c = ntplib.NTPClient()
 
 # Callback when connection is accidentally lost.
 def on_connection_interrupted(connection, error, **kwargs):
@@ -82,18 +94,20 @@ def on_resubscribe_complete(resubscribe_future):
 
 # Callback when the subscribed topic receives a message
 def on_message_received(topic, payload, dup, qos, retain, **kwargs):
-    ntp_t = c.request('uk.pool.ntp.org', version=3)
-    ntp_t.offset
-    ntp_delay = ntp_t.tx_time - float(payload)
+    #ntp_t = c.request('uk.pool.ntp.org', version=3)
+    #ntp_t.offset
+    #ntp_delay = ntp_t.tx_time - float(payload)
     t1 = time.time()
-    delay = t1-t0
+    delay = t1-t0.popleft()
     global counter
     counter = counter + 1
     global total
     total = total + delay
-
+    DelayList.append(delay)
+    #TODO: Add json message field  + machine/device ID field
     print("Received message from topic '{}': {}".format(topic, payload))
-    print("Delay of localtime {}s, Delay of ntp {]s, average of localtime {}s for n = {}".format(delay, ntp_delay, total/counter, counter))
+    #print("LT delay {}s, NTP delay {]s, average of localtime {}s for n = {}".format(delay, ntp_delay, total/counter, counter))
+    print("LT delay {}s, average delay {}s for n = {}".format(delay, total/counter, counter))
     global received_count
     received_count += 1
     if received_count == args.count:
@@ -147,10 +161,10 @@ if __name__ == '__main__':
     print("Connected!")
 
     # Subscribe
-    print("Subscribing to topic '{}'...".format(args.topic))
+    print("Subscribing to topic '{}', with {}...".format(args.topic,"QoS 1" if bool(int(args.qos)) else "QoS 0"))
     subscribe_future, packet_id = mqtt_connection.subscribe(
         topic=args.topic,
-        qos=mqtt.QoS.AT_LEAST_ONCE,
+        qos=QoS,
         callback=on_message_received)
 
     subscribe_result = subscribe_future.result()
@@ -168,16 +182,16 @@ if __name__ == '__main__':
         publish_count = 1
         while (publish_count <= args.count) or (args.count == 0):
             message = "{} [{}]".format(args.message, publish_count)
-            ntp_t = c.request('uk.pool.ntp.org', version=3)
-            ntp_t.offset
-            message = ntp_t.tx_time
+            #ntp_t = c.request('uk.pool.ntp.org', version=3)
+            #ntp_t.offset
+            #message = ntp_t.tx_time
             print("Publishing message to topic '{}': {}".format(args.topic, message))
             mqtt_connection.publish(
                 topic=args.topic,
-                payload=message,
-                qos=mqtt.QoS.AT_MOST_ONCE)
-            t0 = time.time()
-            time.sleep(1)
+                payload=str(message),
+                qos=QoS)
+            t0.append(time.time())
+            time.sleep(args.interval/1000)
             publish_count += 1
 
     # Wait for all messages to be received.
@@ -192,4 +206,11 @@ if __name__ == '__main__':
     print("Disconnecting...")
     disconnect_future = mqtt_connection.disconnect()
     disconnect_future.result()
-    print("Disconnected!")
+    print("Disconnected!\n\n")
+    
+    print(f"Messages received: {received_count} out of {args.count} -> {(received_count * 100)/args.count}% received")
+    print(f"Average time: {total/counter} seconds")
+    print(f"Max time: {max(DelayList)} seconds")
+    print(f"Min time: {min(DelayList)} seconds")
+    print(f"Over 10ms: {len([x for x in DelayList if x >= 0.01])} occurrences")
+    print(f"Over 20ms: {len([x for x in DelayList if x >= 0.02])} occurrences")
