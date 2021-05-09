@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0.
 
 import argparse
+import ntplib
 from awscrt import io, mqtt, auth, http
 from awsiot import mqtt_connection_builder
 import sys
@@ -50,6 +51,8 @@ received_all_event = threading.Event()
 
 t0 = t1 = counter = total = 0
 
+c = ntplib.NTPClient()
+
 # Callback when connection is accidentally lost.
 def on_connection_interrupted(connection, error, **kwargs):
     print("Connection interrupted. error: {}".format(error))
@@ -79,6 +82,9 @@ def on_resubscribe_complete(resubscribe_future):
 
 # Callback when the subscribed topic receives a message
 def on_message_received(topic, payload, dup, qos, retain, **kwargs):
+    ntp_t = c.request('uk.pool.ntp.org', version=3)
+    ntp_t.offset
+    ntp_delay = ntp_t.tx_time - float(payload) - 
     t1 = time.time()
     delay = t1-t0
     global counter
@@ -87,7 +93,7 @@ def on_message_received(topic, payload, dup, qos, retain, **kwargs):
     total = total + delay
 
     print("Received message from topic '{}': {}".format(topic, payload))
-    print("Delay {}s, average of {}s for n = {}".format(delay, total/counter, counter))
+    print("Delay of localtime {}s, Delay of ntp {}S, average of localtime {}s for n = {}".format(delay, ntp_delay, total/counter, counter))
     global received_count
     received_count += 1
     if received_count == args.count:
@@ -161,13 +167,16 @@ if __name__ == '__main__':
 
         publish_count = 1
         while (publish_count <= args.count) or (args.count == 0):
-            message = "{} [{}]".format(args.message, publish_count)
+            #message = "{} [{}]".format(args.message, publish_count)
+            ntp_t = c.request('uk.pool.ntp.org', version=3)
+            ntp_t.offset
+            message = ntp_t.tx_time
             print("Publishing message to topic '{}': {}".format(args.topic, message))
-            t0 = time.time()
             mqtt_connection.publish(
                 topic=args.topic,
-                payload=message,
-                qos=mqtt.QoS.AT_LEAST_ONCE)
+                payload=str(message),
+                qos=mqtt.QoS.AT_MOST_ONCE)
+            t0 = time.time()
             time.sleep(1)
             publish_count += 1
 
