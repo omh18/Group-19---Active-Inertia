@@ -37,6 +37,8 @@ class TimeMeasurement():
             self.timeMQTT = None
             self.timeCoAP = None
 
+timer = TimeMeasurement()
+
 class BlockResource(resource.Resource):
     timer.receivedCoAP()
     """Example resource which supports the GET and PUT methods. It sends large
@@ -129,7 +131,6 @@ class WhoAmI(resource.Resource):
         return Message(content_format=0,
                 payload="\n".join(text).encode('utf8'))
 
-timer = TimeMeasurement()
 
 cwd = os.path.dirname(os.path.abspath(__file__))
 
