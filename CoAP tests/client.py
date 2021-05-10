@@ -21,10 +21,10 @@ class Times:
         self.sendCoAPTime = self.timeNow()
         
     def recvMQTT(self):
-        print(f"MQTT packet received in {float((self.recvMQTTTime-self.sendMQTTTime).total_seconds())}s")
+        print(f"MQTT packet received in {float((self.timeNow()-self.sendMQTTTime).total_seconds())}s")
         
     def recvCoAP(self):
-        print(f"CoAP packet received in {float((self.recvCoAPTime-self.sendCoAPTime).total_seconds())}s")
+        print(f"CoAP packet received in {float((self.timeNow()-self.sendCoAPTime).total_seconds())}s")
         
 timer = Times()
 
