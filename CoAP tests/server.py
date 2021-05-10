@@ -21,7 +21,7 @@ class TimeMeasurement():
         self.timeMQTT = self.timeNow()
         
         if self.timeCoAP != None:
-            print(f"CoAP packet arrived first by {float((self.timeCoAP-self.timeMQTT).total_seconds())}s")
+            print(f"CoAP packet arrived first by {float((self.timeMQTT-self.timeCoAP).total_seconds())}s")
             self.timeMQTT = None
             self.timeCoAP = None
         
@@ -29,7 +29,7 @@ class TimeMeasurement():
         self.timeCoAP = self.timeNow()
         
         if self.timeMQTT != None:
-            print(f"MQTT packet arrived first by {float((self.timeMQTT-self.timeCoAP).total_seconds())}s")
+            print(f"MQTT packet arrived first by {float((self.timeCoAP-self.timeMQTT).total_seconds())}s")
             self.timeMQTT = None
             self.timeCoAP = None
 
