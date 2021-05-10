@@ -17,15 +17,11 @@ class TimeMeasurement():
     def timeNow(self):
         return datetime.datetime.now()
     
-    def timeDiff(self, t1, t2):
-        tD = t2 - t1
-        return float(tD.total_seconds())
-    
     def receivedMQTT(self):
         self.timeMQTT = self.timeNow()
         
         if self.timeCoAP != None:
-            print(f"CoAP packet arrived first by {self.timeDiff(self.timeCoAP,self.timeMQTT)}s")
+            print(f"CoAP packet arrived first by {float((self.timeCoAP-self.timeMQTT).total_seconds())}s")
             self.timeMQTT = None
             self.timeCoAP = None
         
@@ -33,7 +29,7 @@ class TimeMeasurement():
         self.timeCoAP = self.timeNow()
         
         if self.timeMQTT != None:
-            print(f"MQTT packet arrived first by {self.timeDiff(self.timeMQTT,self.timeCoAP)}s")
+            print(f"MQTT packet arrived first by {float((self.timeMQTT-self.timeCoAP).total_seconds())}s")
             self.timeMQTT = None
             self.timeCoAP = None
 
@@ -179,7 +175,7 @@ def main():
     root.add_resource(['other', 'separate'], SeparateLargeResource())
     root.add_resource(['whoami'], WhoAmI())
 
-    context = Context.create_server_context(root,(sys.argv[1],5683))
+    context = Context.create_server_context(root)
 
     asyncio.Task(context)
     print("ready to receive")

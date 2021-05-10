@@ -82,6 +82,8 @@ async def main():
     except Exception as e:
         print('Failed to fetch resource:')
         print(e)
+    else:
+        print('Result: %s\n%r'%(response.code, response.payload))
 
 if __name__ == "__main__":
     asyncio.get_event_loop().run_until_complete(main())
