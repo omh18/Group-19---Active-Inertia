@@ -182,6 +182,7 @@ def main():
     context = Context.create_server_context(root)
 
     asyncio.Task(context)
+    print("ready to receive")
 
     asyncio.get_event_loop().run_forever()
 

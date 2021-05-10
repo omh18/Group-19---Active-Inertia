@@ -6,12 +6,30 @@ from uuid import uuid4
 
 from aiocoap import *
 
-startTime = None
+class Times:
+    def timeNow(self):
+        return datetime.datetime.now()
+    
+    def __init__(self):
+        self.sendMQTTTime = None
+        self.sendCoAPTime = None
+                
+    def sendMQTT(self):
+        self.sendMQTTTime = self.timeNow()
+        
+    def sendCoAP(self):
+        self.sendCoAPTime = self.timeNow()
+        
+    def recvMQTT(self):
+        print(f"MQTT packet received in {float((self.timeNow()-self.sendMQTTTime).total_seconds())}s")
+        
+    def recvCoAP(self):
+        print(f"CoAP packet received in {float((self.timeNow()-self.sendCoAPTime).total_seconds())}s")
+        
+timer = Times()
 
 def customCallback(client, userdata, message):
-    msg = message.payload.decode("utf-8")
-    timeDiffCoAP = now() - startTime
-    print(f"MQTT responded in {float(timeDiffCoAP.total_seconds())}")
+    timer.recvMQTT()
 
 cwd = os.path.dirname(os.path.abspath(__file__))
 
@@ -45,8 +63,6 @@ except:
     print("Could not connect to AWS MQTT broker")
     raise SystemExit
 
-def now():
-    return datetime.datetime.now()
 
 
 async def main():
@@ -55,19 +71,17 @@ async def main():
     msg = "test"
         
     request = Message(code=GET, uri=f'coap://{sys.argv[1]}:5683/time')
+    timer.sendCoAP()
     
     myAWSIoTMQTTClient.publish(topic, msg, qos)
-    startTime = now()
+    timer.sendMQTT()
 
     try:
         response = await protocol.request(request).response
-        timeDiffCoAP = now() - startTime
-        print(f"CoAP responded in {float(timeDiffCoAP.total_seconds())}")
+        timer.recvCoAP()
     except Exception as e:
         print('Failed to fetch resource:')
         print(e)
-    # else:
-    #     print('Result: %s\n%r'%(response.code, response.payload))
 
 if __name__ == "__main__":
     asyncio.get_event_loop().run_until_complete(main())
