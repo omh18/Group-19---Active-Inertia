@@ -36,7 +36,6 @@ class TimeMeasurement():
 timer = TimeMeasurement()
 
 class BlockResource(resource.Resource):
-    timer.receivedCoAP()
     """Example resource which supports the GET and PUT methods. It sends large
     responses, which trigger blockwise transfer."""
 
@@ -60,7 +59,6 @@ class BlockResource(resource.Resource):
         return Message(code=codes.CHANGED, payload=self.content)
 
 class SeparateLargeResource(resource.Resource):
-    timer.receivedCoAP()
     """Example resource which supports the GET method. It uses asyncio.sleep to
     simulate a long-running operation, and thus forces the protocol to send
     empty ACK first. """
@@ -79,7 +77,6 @@ class SeparateLargeResource(resource.Resource):
         return Message(payload=payload)
 
 class TimeResource(resource.ObservableResource):
-    timer.receivedCoAP()
     """Example resource that can be observed. The `notify` method keeps
     scheduling itself, and calles `update_state` to trigger sending
     notifications."""
@@ -106,12 +103,12 @@ class TimeResource(resource.ObservableResource):
             self.handle = None
 
     async def render_get(self, request):
+        timer.receivedCoAP()
         payload = datetime.datetime.now().\
                 strftime("%Y-%m-%d %H:%M").encode('ascii')
         return Message(payload=payload)
 
 class WhoAmI(resource.Resource):
-    timer.receivedCoAP()
     async def render_get(self, request):
         text = ["Used protocol: %s." % request.remote.scheme]
 
