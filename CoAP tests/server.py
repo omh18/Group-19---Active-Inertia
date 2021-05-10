@@ -179,7 +179,7 @@ def main():
     root.add_resource(['other', 'separate'], SeparateLargeResource())
     root.add_resource(['whoami'], WhoAmI())
 
-    context = Context.create_server_context(root,(sys.argv[1],5683))
+    context = Context.create_server_context(root)
 
     asyncio.Task(context)
 
