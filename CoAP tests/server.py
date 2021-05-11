@@ -29,7 +29,7 @@ class TimeMeasurement():
         self.timeMQTT = self.timeNow()
         
         if self.timeCoAP != None:
-            print(f"CoAP packet arrived first by {abs(self.timeMQTT-self.timeCoAP)}s. First arrivals -> CoAP: {self.getPercentageCoAP}, MQTT: {self.getPercentageMQTT}")
+            print(f"CoAP packet arrived first by {abs(self.timeMQTT-self.timeCoAP)}s. First arrivals -> CoAP: {self.getPercentageCoAP}%, MQTT: {self.getPercentageMQTT}%")
             self.timeMQTT = None
             self.timeCoAP = None
         
@@ -37,7 +37,7 @@ class TimeMeasurement():
         self.timeCoAP = self.timeNow()
         
         if self.timeMQTT != None:
-            print(f"MQTT packet arrived first by {abs(self.timeMQTT-self.timeCoAP)}s. First arrivals -> CoAP: {self.getPercentageCoAP}, MQTT: {self.getPercentageMQTT}")
+            print(f"MQTT packet arrived first by {abs(self.timeMQTT-self.timeCoAP)}s. First arrivals -> CoAP: {self.getPercentageCoAP}%, MQTT: {self.getPercentageMQTT}%")
             self.timeMQTT = None
             self.timeCoAP = None
 
