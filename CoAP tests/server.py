@@ -19,17 +19,23 @@ class TimeMeasurement():
     def timeNow(self):
         return time.time()
     
+    def totalRecvs(self):
+        return len(self.CoAPDelays) + len(self.MQTTDelays)
+    
     def getPercentageCoAP(self):
-        return 100 * ( len(self.CoAPDelays) / (len(self.CoAPDelays) + len(self.MQTTDelays)) )
+        return "{:.1f}".format(100 * ( len(self.CoAPDelays) / self.totalRecvs ))
     
     def getPercentageMQTT(self):
-        return 100 * ( len(self.MQTTDelays) / (len(self.CoAPDelays) + len(self.MQTTDelays)) )
+        return "{:.1f}".format(100 * ( len(self.MQTTDelays) / self.totalRecvs ))
+    
+    def fiveDecimalPoints(self,s):
+        return "{:.5f}".format(s)
     
     def receivedMQTT(self):
         self.timeMQTT = self.timeNow()
         
         if self.timeCoAP != None:
-            print(f"CoAP packet arrived first by {abs(self.timeMQTT-self.timeCoAP)}s. First arrivals -> CoAP: {self.getPercentageCoAP}%, MQTT: {self.getPercentageMQTT}%")
+            print(f"CoAP packet arrived first by {self.fiveDecimalPoints(abs(self.timeMQTT-self.timeCoAP))}s. First arrivals -> CoAP: {self.getPercentageCoAP}%, MQTT: {self.getPercentageMQTT}%. Total packets: {self.totalRecvs}")
             self.timeMQTT = None
             self.timeCoAP = None
         
@@ -37,7 +43,7 @@ class TimeMeasurement():
         self.timeCoAP = self.timeNow()
         
         if self.timeMQTT != None:
-            print(f"MQTT packet arrived first by {abs(self.timeMQTT-self.timeCoAP)}s. First arrivals -> CoAP: {self.getPercentageCoAP}%, MQTT: {self.getPercentageMQTT}%")
+            print(f"MQTT packet arrived first by {self.fiveDecimalPoints(abs(self.timeMQTT-self.timeCoAP))}s. First arrivals -> CoAP: {self.getPercentageCoAP}%, MQTT: {self.getPercentageMQTT}%. Total packets: {self.totalRecvs}")
             self.timeMQTT = None
             self.timeCoAP = None
 
@@ -191,4 +197,18 @@ def main():
     asyncio.get_event_loop().run_forever()
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        if timer.CoAPDelays != [] or timer.MQTTDelays != []:
+            timeNow = datetime.now().strftime("%m/%d %H:%M")
+            CoAPFileName = f"{timeNow} CoAP.txt"
+            MQTTFileName = f"{timeNow} MQTT.txt"
+            with open(CoAPFileName, 'w') as coap:
+                for t in timer.CoAPDelays:
+                    coap.write(t)
+            with open(MQTTFileName, 'w') as mqtt:
+                for t in timer.MQTTDelays:
+                    mqtt.write(t)
+            print(f"Saved CoAP and MQTT delays to {CoAPFileName} and {MQTTFileName}")
+        print("There were no packets received. No files were saved.")
