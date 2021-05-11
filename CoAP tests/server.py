@@ -144,7 +144,7 @@ class WhoAmI(resource.Resource):
 cwd = os.path.dirname(os.path.abspath(__file__))
 
 qos = 0
-host = "a3ccusvtjpdwda-ats.iot.eu-west-2.amazonaws.com"
+host = "a3ccusvtjpdwda-ats.iot.eu-west-3.amazonaws.com"
 rootCAPath = os.path.join(cwd,"certs","Amazon-root-CA-1.pem")
 privateKeyPath = os.path.join(cwd,"certs","private.pem.key")
 certificatePath = os.path.join(cwd,"certs","device.pem.crt")
@@ -203,16 +203,17 @@ if __name__ == "__main__":
         main()
     except:
         if timer.CoAPDelays != [] or timer.MQTTDelays != []:
+            note = input("\nAdd any note to the text file e.g. server location: ")
             timeNow = datetime.datetime.now().strftime("%m-%d %H:%M")
-            CoAPFileName = f"{timeNow} CoAP.txt"
-            MQTTFileName = f"{timeNow} MQTT.txt"
+            CoAPFileName = f"{timeNow} CoAP {note}.txt"
+            MQTTFileName = f"{timeNow} MQTT {note}.txt"
             
-            with open(os.path.join(cwd,CoAPFileName), 'w+') as coap:
+            with open(os.path.join(cwd,"text files",CoAPFileName), 'w+') as coap:
                 for t in timer.CoAPDelays:
-                    coap.write(t)
-            with open(os.path.join(cwd,MQTTFileName), 'w+') as mqtt:
+                    coap.write(t + "\n")
+            with open(os.path.join(cwd,"text files",MQTTFileName), 'w+') as mqtt:
                 for t in timer.MQTTDelays:
-                    mqtt.write(t)
+                    mqtt.write(t + "\n")
             print(f"Saved CoAP and MQTT delays to {CoAPFileName} and {MQTTFileName}")
         else:
             print("There were no packets received. No files were saved.")
