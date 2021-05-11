@@ -203,7 +203,7 @@ if __name__ == "__main__":
         main()
     except:
         if timer.CoAPDelays != [] or timer.MQTTDelays != []:
-            timeNow = datetime.datetime.now().strftime("%m/%d %H:%M")
+            timeNow = datetime.datetime.now().strftime("%m-%d %H:%M")
             CoAPFileName = f"{timeNow} CoAP.txt"
             MQTTFileName = f"{timeNow} MQTT.txt"
             with open(os.path.join("CoAP tests",CoAPFileName), 'w+') as coap:
