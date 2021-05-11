@@ -208,10 +208,10 @@ if __name__ == "__main__":
             CoAPFileName = f"{timeNow} CoAP {note}.txt"
             MQTTFileName = f"{timeNow} MQTT {note}.txt"
             
-            with open(os.path.join(cwd,"text files",CoAPFileName), 'w+') as coap:
+            with open(os.path.join(cwd,"text_files",CoAPFileName), 'w+') as coap:
                 for t in timer.CoAPDelays:
                     coap.write(t + "\n")
-            with open(os.path.join(cwd,"text files",MQTTFileName), 'w+') as mqtt:
+            with open(os.path.join(cwd,"text_files",MQTTFileName), 'w+') as mqtt:
                 for t in timer.MQTTDelays:
                     mqtt.write(t + "\n")
             print(f"Saved CoAP and MQTT delays to {CoAPFileName} and {MQTTFileName}")
