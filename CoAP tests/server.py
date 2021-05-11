@@ -201,16 +201,17 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except KeyboardInterrupt:
+    except:
         if timer.CoAPDelays != [] or timer.MQTTDelays != []:
             timeNow = datetime.datetime.now().strftime("%m/%d %H:%M")
             CoAPFileName = f"{timeNow} CoAP.txt"
             MQTTFileName = f"{timeNow} MQTT.txt"
-            with open(CoAPFileName, 'w+') as coap:
+            with open(os.path.join("CoAP tests",CoAPFileName), 'w+') as coap:
                 for t in timer.CoAPDelays:
                     coap.write(t)
-            with open(MQTTFileName, 'w+') as mqtt:
+            with open(os.path.join("CoAP tests",MQTTFileName), 'w+') as mqtt:
                 for t in timer.MQTTDelays:
                     mqtt.write(t)
             print(f"Saved CoAP and MQTT delays to {CoAPFileName} and {MQTTFileName}")
-        print("There were no packets received. No files were saved.")
+        else:
+            print("There were no packets received. No files were saved.")
