@@ -93,7 +93,8 @@ def on_message_received(topic, payload, dup, qos, retain, **kwargs):
     total = total + delay
 
     print("Received message from topic '{}': {}".format(topic, payload))
-    print("Delay of localtime {}s, Delay of ntp {}S, average of localtime {}s for n = {}".format(delay, ntp_delay, total/counter, counter))
+    #print("LT delay {}s, NTP delay {]s, average of localtime {}s for n = {}".format(delay, ntp_delay, total/counter, counter))
+    print("LT delay {}s, average delay {}s for n = {}".format(delay, total/counter, counter))
     global received_count
     received_count += 1
     if received_count == args.count:
