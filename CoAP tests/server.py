@@ -5,6 +5,7 @@ import os, sys
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 from uuid import uuid4
 import asyncio
+import git
 
 import aiocoap.resource as resource
 from aiocoap import *
@@ -205,15 +206,27 @@ if __name__ == "__main__":
         if timer.CoAPDelays != [] or timer.MQTTDelays != []:
             note = input("\nAdd any note to the text file e.g. server location: ")
             timeNow = datetime.datetime.now().strftime("%m-%d %H:%M")
-            CoAPFileName = f"{timeNow} CoAP {note}.txt"
-            MQTTFileName = f"{timeNow} MQTT {note}.txt"
+            CoAPFile = os.path.join(cwd,"text_files",f"{timeNow} CoAP {note}.txt")
+            MQTTFile = os.path.join(cwd,"text_files",f"{timeNow} MQTT {note}.txt")
             
-            with open(os.path.join(cwd,"text_files",CoAPFileName), 'w+') as coap:
+            with open(CoAPFile, 'w+') as coap:
                 for t in timer.CoAPDelays:
                     coap.write(t + "\n")
-            with open(os.path.join(cwd,"text_files",MQTTFileName), 'w+') as mqtt:
+            with open(MQTTFile, 'w+') as mqtt:
                 for t in timer.MQTTDelays:
                     mqtt.write(t + "\n")
-            print(f"Saved CoAP and MQTT delays to {CoAPFileName} and {MQTTFileName}")
+            print(f"Saved CoAP and MQTT delays to {CoAPFile} and {MQTTFile}")
+            
+            repo = git.Repo('.')
+            repo.index.add([CoAPFile, MQTTFile])
+            repo.index.commit("Added latency benchmarks")
+            
+            # Pull from remote repo
+            print(repo.remotes.origin.pull())
+            # Push changes
+            print(repo.remotes.origin.push())
+            
+            print("Files were successfully pushed to github repo")
+            
         else:
             print("There were no packets received. No files were saved.")
