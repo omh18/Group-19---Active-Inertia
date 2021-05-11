@@ -145,7 +145,7 @@ class WhoAmI(resource.Resource):
 cwd = os.path.dirname(os.path.abspath(__file__))
 
 qos = 0
-host = "a3ccusvtjpdwda-ats.iot.eu-west-3.amazonaws.com"
+host = "a3ccusvtjpdwda-ats.iot.eu-west-2.amazonaws.com"
 rootCAPath = os.path.join(cwd,"certs","Amazon-root-CA-1.pem")
 privateKeyPath = os.path.join(cwd,"certs","private.pem.key")
 certificatePath = os.path.join(cwd,"certs","device.pem.crt")
