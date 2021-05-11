@@ -217,7 +217,7 @@ if __name__ == "__main__":
                     mqtt.write(t + "\n")
             print(f"Saved CoAP and MQTT delays to {CoAPFile} and {MQTTFile}")
             
-            repo = git.Repo('.')
+            repo = git.Repo(os.getcwd())
             repo.index.add([CoAPFile, MQTTFile])
             repo.index.commit("Added latency benchmarks")
             
