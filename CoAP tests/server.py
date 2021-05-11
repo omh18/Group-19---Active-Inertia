@@ -169,7 +169,7 @@ myAWSIoTMQTTClient.configureMQTTOperationTimeout(5)  # 5 sec
 def customCallback(client, userdata, message):
     if message.payload.decode("utf-8") == "test":
         timer.receivedMQTT()
-        print("Callback called!")
+        # print("Callback called!")
     else: pass
 
 # Connect and subscribe to AWS IoT
