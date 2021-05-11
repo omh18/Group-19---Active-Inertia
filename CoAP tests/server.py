@@ -203,7 +203,7 @@ if __name__ == "__main__":
         main()
     except KeyboardInterrupt:
         if timer.CoAPDelays != [] or timer.MQTTDelays != []:
-            timeNow = datetime.now().strftime("%m/%d %H:%M")
+            timeNow = datetime.datetime.now().strftime("%m/%d %H:%M")
             CoAPFileName = f"{timeNow} CoAP.txt"
             MQTTFileName = f"{timeNow} MQTT.txt"
             with open(CoAPFileName, 'w') as coap:
