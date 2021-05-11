@@ -23,10 +23,10 @@ class TimeMeasurement():
         return len(self.CoAPDelays) + len(self.MQTTDelays)
     
     def getPercentageCoAP(self):
-        return "{:.1f}".format(100 * ( len(self.CoAPDelays) / self.totalRecvs ))
+        return "{:.1f}".format(100 * ( len(self.CoAPDelays) / self.totalRecvs() ))
     
     def getPercentageMQTT(self):
-        return "{:.1f}".format(100 * ( len(self.MQTTDelays) / self.totalRecvs ))
+        return "{:.1f}".format(100 * ( len(self.MQTTDelays) / self.totalRecvs() ))
     
     def fiveDecimalPoints(self,s):
         return "{:.5f}".format(s)
